@@ -1,7 +1,7 @@
 # Airthings Wave Plus Sensor Reader
 
 This is a project to provide users an interface (```read_waveplus.py```) to read current sensor values from the
-[Airthings Wave Plus](https://airthings.com/wave-plus/) devices using a Raspberry Pi 3 
+[Airthings Wave Plus](https://airthings.com/wave-plus/) devices using a Raspberry Pi 3
 Model B over Bluetooth Low Energy (BLE).
 
 Airthings Wave Plus is a smart IAQ monitor with Radon detection, including sensors for
@@ -51,15 +51,15 @@ The following tables shows a compact overview of dependencies for this project.
 
 ## Setup Raspberry Pi
 
-The first step is to setup the Raspberry Pi with Raspbian. An installation guide for 
+The first step is to setup the Raspberry Pi with Raspbian. An installation guide for
 Raspbian can be found on the [Raspberry Pi website](https://www.raspberrypi.org/downloads/raspbian/).
 In short: download the Raspbian image and write it to a micro SD card.
 
-To continue, you need access to the Raspberry Pi using either a monitor and keyboard, or 
-by connecting through WiFi or ethernet from another computer. The latter option does not 
-require an external screen or keyboard and is called “headless” setup. To access a headless 
-setup, you must first activate SSH on the Pi. This can be done by creating a file named ssh 
-in the boot partition of the SD card. Connect to the Pi using SSH from a command line 
+To continue, you need access to the Raspberry Pi using either a monitor and keyboard, or
+by connecting through WiFi or ethernet from another computer. The latter option does not
+require an external screen or keyboard and is called “headless” setup. To access a headless
+setup, you must first activate SSH on the Pi. This can be done by creating a file named ssh
+in the boot partition of the SD card. Connect to the Pi using SSH from a command line
 interface (terminal):
 
 ```
@@ -85,7 +85,7 @@ to the Raspberry Pi terminal window. Look for ```Powered: yes```.
 
 > **Note:** The ```read_waveplus.py``` script is only compatible with Python2.7.
 
-The next step is to install the bluepy Python library for talking to the BLE stack. 
+The next step is to install the bluepy Python library for talking to the BLE stack.
 For the current released version for Python 2.7:
 
 ```
@@ -131,7 +131,7 @@ pi@raspberrypi:~$ wget https://raw.githubusercontent.com/Airthings/waveplus-read
 # Usage
 
 To read the sensor data from the Airthings Wave Plus using the ```read_waveplus.py``` script,
-you need the 10-digit serial number of the device. This can be found under the magnetic backplate 
+you need the 10-digit serial number of the device. This can be found under the magnetic backplate
 of your Airthings Wave Plus.
 
 If your device is paired and connected to e.g. a phone, you may need to turn off bluetooth on
@@ -153,7 +153,7 @@ where the input arguments are:
 | SAMPLE-PERIOD | 60                      | Read sensor values every 60 seconds. Must be larger than zero.
 | pipe          | pipe > yourfilename.txt | Optional. Since tableprint is incompatible with piping, we use a third optional input argument "pipe".
 
-> **Note on choosing a sample period:** 
+> **Note on choosing a sample period:**
 Except for the radon measurements, the Wave Plus updates its current sensor values once every 5 minutes.
 Radon measurements are updated once every hour.
 
@@ -168,7 +168,7 @@ pi@raspberrypi:~/waveplus-reader $ sudo python2 read_waveplus.py SN SAMPLE-PERIO
 
 where you change ```SN``` with the 10-digit serial number, and change ```SAMPLE-PERIOD``` to a numerical value of your choice.
 
-After a short delay, the script will print the current sensor values to the 
+After a short delay, the script will print the current sensor values to the
 Raspberry Pi terminal window. Exit the script using ```Ctrl+C```.
 
 ## Piping data to a text-file
@@ -187,7 +187,7 @@ Exit the script using ```Ctrl+C```.
 
 | sensor | units | Comments |
 |-------------|-------------|-------------|
-| Humidity                      | %rH | 
+| Humidity                      | %rH |
 | Temperature                   | &deg;C |
 | Radon short term average      | Bq/m3 | First measurement available 1 hour after inserting batteries
 | Radon long term average       | Bq/m3 | First measurement available 1 hour after inserting batteries

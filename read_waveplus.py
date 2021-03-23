@@ -45,12 +45,12 @@ if len(sys.argv) < 3:
     print(USAGE)
     sys.exit(1)
 
-if sys.argv[1].isdigit() is not True or len(sys.argv[1]) != 10:
+if not sys.argv[1].isdigit() or len(sys.argv[1]) != 10:
     print("ERROR: Invalid SN format.")
     print(USAGE)
     sys.exit(1)
 
-if sys.argv[2].isdigit() is not True or int(sys.argv[2]) < 0:
+if not sys.argv[2].isdigit() or int(sys.argv[2]) < 0:
     print("ERROR: Invalid SAMPLE-PERIOD. Must be a numerical value larger than zero.")
     print(USAGE)
     sys.exit(1)
@@ -74,7 +74,7 @@ SamplePeriod = int(sys.argv[2])
 
 
 def parseSerialNumber(ManuDataHexStr):
-    if ManuDataHexStr == None or ManuDataHexStr == "None":
+    if ManuDataHexStr is None or ManuDataHexStr == "None":
         SN = "Unknown"
     else:
         ManuData = bytearray.fromhex(ManuDataHexStr)

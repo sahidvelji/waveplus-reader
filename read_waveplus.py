@@ -208,7 +208,7 @@ try:
     if mode == "terminal":
         print("\nPress ctrl+C to exit program\n")
 
-    print("Device serial number: %s" % serial_number)
+    print(f"Device serial number: {serial_number}")
 
     header = [
         "Humidity",

@@ -56,37 +56,37 @@ if not sys.argv[2].isdigit() or int(sys.argv[2]) < 0:
     sys.exit(1)
 
 if len(sys.argv) > 3:
-    Mode = sys.argv[3].lower()
+    mode = sys.argv[3].lower()
 else:
-    Mode = "terminal"  # (default) print to terminal
+    mode = "terminal"  # (default) print to terminal
 
-if Mode != "pipe" and Mode != "terminal":
+if mode != "pipe" and mode != "terminal":
     print("ERROR: Invalid piping method.")
     print(USAGE)
     sys.exit(1)
 
-SerialNumber = int(sys.argv[1])
-SamplePeriod = int(sys.argv[2])
+serial_number = int(sys.argv[1])
+sample_period = int(sys.argv[2])
 
 # ====================================
 # Utility functions for WavePlus class
 # ====================================
 
 
-def parseSerialNumber(ManuDataHexStr):
-    if ManuDataHexStr is None or ManuDataHexStr == "None":
-        SN = "Unknown"
+def parse_serial_number(manu_data_hex_str):
+    if manu_data_hex_str is None or manu_data_hex_str == "None":
+        sn = "Unknown"
     else:
-        ManuData = bytearray.fromhex(ManuDataHexStr)
+        manu_data = bytearray.fromhex(manu_data_hex_str)
 
-        if ((ManuData[1] << 8) | ManuData[0]) == 0x0334:
-            SN = ManuData[2]
-            SN |= ManuData[3] << 8
-            SN |= ManuData[4] << 16
-            SN |= ManuData[5] << 24
+        if ((manu_data[1] << 8) | manu_data[0]) == 0x0334:
+            sn = manu_data[2]
+            sn |= manu_data[3] << 8
+            sn |= manu_data[4] << 16
+            sn |= manu_data[5] << 24
         else:
-            SN = "Unknown"
-    return SN
+            sn = "Unknown"
+    return sn
 
 
 # ===============================
@@ -95,31 +95,31 @@ def parseSerialNumber(ManuDataHexStr):
 
 
 class WavePlus:
-    def __init__(self, SerialNumber):
+    def __init__(self, serial_number):
         self.periph = None
         self.curr_val_char = None
-        self.MacAddr = None
-        self.SN = SerialNumber
+        self.mac_addr = None
+        self.sn = serial_number
         self.uuid = UUID("b42e2a68-ade7-11e4-89d3-123b93f75cba")
 
     def connect(self):
         # Auto-discover device on first connection
-        if self.MacAddr is None:
+        if self.mac_addr is None:
             scanner = Scanner().withDelegate(DefaultDelegate())
-            searchCount = 0
-            while self.MacAddr is None and searchCount < 50:
+            search_count = 0
+            while self.mac_addr is None and search_count < 50:
                 devices = scanner.scan(0.1)  # 0.1 seconds scan period
-                searchCount += 1
+                search_count += 1
                 for dev in devices:
-                    ManuData = dev.getValueText(255)
-                    SN = parseSerialNumber(ManuData)
-                    if SN == self.SN:
-                        self.MacAddr = (
+                    manu_data = dev.getValueText(255)
+                    sn = parse_serial_number(manu_data)
+                    if sn == self.sn:
+                        self.mac_addr = (
                             dev.addr
                         )  # exits the while loop on next conditional check
                         break  # exit for loop
 
-            if self.MacAddr is None:
+            if self.mac_addr is None:
                 print("ERROR: Could not find device.")
                 print("GUIDE: (1) Please verify the serial number.")
                 print("       (2) Ensure that the device is advertising.")
@@ -128,7 +128,7 @@ class WavePlus:
 
         # Connect to device
         if self.periph is None:
-            self.periph = Peripheral(self.MacAddr)
+            self.periph = Peripheral(self.mac_addr)
         if self.curr_val_char is None:
             self.curr_val_char = self.periph.getCharacteristics(uuid=self.uuid)[0]
 
@@ -136,10 +136,10 @@ class WavePlus:
         if self.curr_val_char is None:
             print("ERROR: Devices are not connected.")
             sys.exit(1)
-        rawdata = self.curr_val_char.read()
-        rawdata = struct.unpack("<BBBBHHHHHHHH", rawdata)
+        raw_data = self.curr_val_char.read()
+        raw_data = struct.unpack("<BBBBHHHHHHHH", raw_data)
         sensors = Sensors()
-        sensors.set(rawdata)
+        sensors.set(raw_data)
         return sensors
 
     def disconnect(self):
@@ -169,20 +169,20 @@ class Sensors:
         self.sensor_data = [None] * NUMBER_OF_SENSORS
         self.sensor_units = ["%rH", "Bq/m3", "Bq/m3", "degC", "hPa", "ppm", "ppb"]
 
-    def set(self, rawData):
-        self.sensor_version = rawData[0]
+    def set(self, raw_data):
+        self.sensor_version = raw_data[0]
         if self.sensor_version == 1:
-            self.sensor_data[SENSOR_IDX_HUMIDITY] = rawData[1] / 2.0
+            self.sensor_data[SENSOR_IDX_HUMIDITY] = raw_data[1] / 2.0
             self.sensor_data[SENSOR_IDX_RADON_SHORT_TERM_AVG] = self.conv2radon(
-                rawData[4]
+                raw_data[4]
             )
             self.sensor_data[SENSOR_IDX_RADON_LONG_TERM_AVG] = self.conv2radon(
-                rawData[5]
+                raw_data[5]
             )
-            self.sensor_data[SENSOR_IDX_TEMPERATURE] = rawData[6] / 100.0
-            self.sensor_data[SENSOR_IDX_REL_ATM_PRESSURE] = rawData[7] / 50.0
-            self.sensor_data[SENSOR_IDX_CO2_LVL] = rawData[8] * 1.0
-            self.sensor_data[SENSOR_IDX_VOC_LVL] = rawData[9] * 1.0
+            self.sensor_data[SENSOR_IDX_TEMPERATURE] = raw_data[6] / 100.0
+            self.sensor_data[SENSOR_IDX_REL_ATM_PRESSURE] = raw_data[7] / 50.0
+            self.sensor_data[SENSOR_IDX_CO2_LVL] = raw_data[8] * 1.0
+            self.sensor_data[SENSOR_IDX_VOC_LVL] = raw_data[9] * 1.0
         else:
             print("ERROR: Unknown sensor version.\n")
             print("GUIDE: Contact Airthings for support.\n")
@@ -194,21 +194,21 @@ class Sensors:
             radon = radon_raw
         return radon
 
-    def getValue(self, sensor_index):
+    def get_value(self, sensor_index):
         return self.sensor_data[sensor_index]
 
-    def getUnit(self, sensor_index):
+    def get_unit(self, sensor_index):
         return self.sensor_units[sensor_index]
 
 
 try:
     # ---- Initialize ----#
-    waveplus = WavePlus(SerialNumber)
+    waveplus = WavePlus(serial_number)
 
-    if Mode == "terminal":
+    if mode == "terminal":
         print("\nPress ctrl+C to exit program\n")
 
-    print("Device serial number: %s" % (SerialNumber))
+    print("Device serial number: %s" % serial_number)
 
     header = [
         "Humidity",
@@ -220,9 +220,9 @@ try:
         "VOC level",
     ]
 
-    if Mode == "terminal":
+    if mode == "terminal":
         print(tableprint.header(header, width=12))
-    elif Mode == "pipe":
+    elif mode == "pipe":
         print(header)
 
     while True:
@@ -234,39 +234,39 @@ try:
 
         # extract
         humidity = (
-            str(sensors.getValue(SENSOR_IDX_HUMIDITY))
+            str(sensors.get_value(SENSOR_IDX_HUMIDITY))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_HUMIDITY))
+            + str(sensors.get_unit(SENSOR_IDX_HUMIDITY))
         )
         radon_st_avg = (
-            str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG))
+            str(sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
+            + str(sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
         )
         radon_lt_avg = (
-            str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))
+            str(sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_RADON_LONG_TERM_AVG))
+            + str(sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG))
         )
         temperature = (
-            str(sensors.getValue(SENSOR_IDX_TEMPERATURE))
+            str(sensors.get_value(SENSOR_IDX_TEMPERATURE))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_TEMPERATURE))
+            + str(sensors.get_unit(SENSOR_IDX_TEMPERATURE))
         )
         pressure = (
-            str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))
+            str(sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_REL_ATM_PRESSURE))
+            + str(sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE))
         )
-        CO2_lvl = (
-            str(sensors.getValue(SENSOR_IDX_CO2_LVL))
+        co2_lvl = (
+            str(sensors.get_value(SENSOR_IDX_CO2_LVL))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_CO2_LVL))
+            + str(sensors.get_unit(SENSOR_IDX_CO2_LVL))
         )
-        VOC_lvl = (
-            str(sensors.getValue(SENSOR_IDX_VOC_LVL))
+        voc_lvl = (
+            str(sensors.get_value(SENSOR_IDX_VOC_LVL))
             + " "
-            + str(sensors.getUnit(SENSOR_IDX_VOC_LVL))
+            + str(sensors.get_unit(SENSOR_IDX_VOC_LVL))
         )
 
         # Print data
@@ -276,18 +276,18 @@ try:
             radon_lt_avg,
             temperature,
             pressure,
-            CO2_lvl,
-            VOC_lvl,
+            co2_lvl,
+            voc_lvl,
         ]
 
-        if Mode == "terminal":
+        if mode == "terminal":
             print(tableprint.row(data, width=12))
-        elif Mode == "pipe":
+        elif mode == "pipe":
             print(data)
 
         waveplus.disconnect()
 
-        time.sleep(SamplePeriod)
+        time.sleep(sample_period)
 
 finally:
     waveplus.disconnect()

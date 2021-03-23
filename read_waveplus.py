@@ -205,9 +205,6 @@ try:
     # ---- Initialize ----#
     waveplus = WavePlus(serial_number)
 
-    if mode == "terminal":
-        print("\nPress ctrl+C to exit program\n")
-
     print(f"Device serial number: {serial_number}")
 
     header = [

@@ -171,22 +171,21 @@ class Sensors:
 
     def set(self, raw_data):
         self.sensor_version = raw_data[0]
-        if self.sensor_version == 1:
-            self.sensor_data[SENSOR_IDX_HUMIDITY] = raw_data[1] / 2.0
-            self.sensor_data[SENSOR_IDX_RADON_SHORT_TERM_AVG] = self.conv2radon(
-                raw_data[4]
-            )
-            self.sensor_data[SENSOR_IDX_RADON_LONG_TERM_AVG] = self.conv2radon(
-                raw_data[5]
-            )
-            self.sensor_data[SENSOR_IDX_TEMPERATURE] = raw_data[6] / 100.0
-            self.sensor_data[SENSOR_IDX_REL_ATM_PRESSURE] = raw_data[7] / 50.0
-            self.sensor_data[SENSOR_IDX_CO2_LVL] = raw_data[8] * 1.0
-            self.sensor_data[SENSOR_IDX_VOC_LVL] = raw_data[9] * 1.0
-        else:
+        if self.sensor_version != 1:
             print("ERROR: Unknown sensor version.\n")
             print("GUIDE: Contact Airthings for support.\n")
             sys.exit(1)
+        self.sensor_data[SENSOR_IDX_HUMIDITY] = raw_data[1] / 2.0
+        self.sensor_data[SENSOR_IDX_RADON_SHORT_TERM_AVG] = self.conv2radon(
+            raw_data[4]
+        )
+        self.sensor_data[SENSOR_IDX_RADON_LONG_TERM_AVG] = self.conv2radon(
+            raw_data[5]
+        )
+        self.sensor_data[SENSOR_IDX_TEMPERATURE] = raw_data[6] / 100.0
+        self.sensor_data[SENSOR_IDX_REL_ATM_PRESSURE] = raw_data[7] / 50.0
+        self.sensor_data[SENSOR_IDX_CO2_LVL] = raw_data[8] * 1.0
+        self.sensor_data[SENSOR_IDX_VOC_LVL] = raw_data[9] * 1.0
 
     def conv2radon(self, radon_raw):
         radon = "N/A"  # Either invalid measurement, or not available

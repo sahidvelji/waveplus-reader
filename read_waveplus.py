@@ -219,7 +219,7 @@ try:
     if mode == "terminal":
         print(tableprint.header(header, width=12))
     elif mode == "pipe":
-        print(header)
+        print(*header, sep=",")
 
     while True:
 
@@ -279,7 +279,7 @@ try:
         if mode == "terminal":
             print(tableprint.row(data, width=12))
         elif mode == "pipe":
-            print(data)
+            print(*data, sep=",")
 
         waveplus.disconnect()
 

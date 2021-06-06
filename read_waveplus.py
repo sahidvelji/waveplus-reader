@@ -31,42 +31,27 @@ import sys
 import time
 import struct
 import tableprint
+import argparse
 
 # ===============================
 # Script guards for correct usage
 # ===============================
-USAGE = """USAGE: read_waveplus.py SN SAMPLE-PERIOD [pipe > yourfile.txt]
-    where SN is the 10-digit serial number found under the magnetic backplate of your Wave Plus.
-    where SAMPLE-PERIOD is the time in seconds between reading the current values.
-    where [pipe > yourfile.txt] is optional and specifies that you want to pipe your results to yourfile.txt."""
+parser = argparse.ArgumentParser()
+parser.add_argument("serial_number", type=int, help="the 10-digit serial number found under the magnetic backplate of your Wave Plus")
+parser.add_argument("--sample-period", type=int, default=300, help="the number of seconds between reading the current values. Default: %(default)s")
+parser.add_argument("--pipe", action="store_true", help="pipe the results to a file")
+args = parser.parse_args()
 
-if len(sys.argv) < 3:
-    print("ERROR: Missing input argument SN or SAMPLE-PERIOD.")
-    print(USAGE)
-    sys.exit(1)
-
-if not sys.argv[1].isdigit() or len(sys.argv[1]) != 10:
+if len(str(args.serial_number)) != 10:
     print("ERROR: Invalid SN format.")
-    print(USAGE)
+    parser.print_usage()
     sys.exit(1)
 
-if not sys.argv[2].isdigit() or int(sys.argv[2]) < 0:
-    print("ERROR: Invalid SAMPLE-PERIOD. Must be a numerical value larger than zero.")
-    print(USAGE)
+if args.sample_period <= 0:
+    print("ERROR: Invalid SAMPLE-PERIOD. Must be larger than zero.")
+    parser.print_usage()
     sys.exit(1)
 
-if len(sys.argv) > 3:
-    mode = sys.argv[3].lower()
-else:
-    mode = "terminal"  # (default) print to terminal
-
-if mode != "pipe" and mode != "terminal":
-    print("ERROR: Invalid piping method.")
-    print(USAGE)
-    sys.exit(1)
-
-serial_number = int(sys.argv[1])
-sample_period = int(sys.argv[2])
 
 # ====================================
 # Utility functions for WavePlus class
@@ -202,9 +187,9 @@ class Sensors:
 
 try:
     # ---- Initialize ----#
-    waveplus = WavePlus(serial_number)
+    waveplus = WavePlus(args.serial_number)
 
-    print(f"Device serial number: {serial_number}")
+    print(f"Device serial number: {args.serial_number}")
 
     header = [
         "Humidity",
@@ -216,10 +201,10 @@ try:
         "VOC level",
     ]
 
-    if mode == "terminal":
-        print(tableprint.header(header, width=12))
-    elif mode == "pipe":
+    if args.pipe:
         print(*header, sep=",")
+    else:
+        print(tableprint.header(header, width=12))
 
     while True:
 
@@ -276,14 +261,14 @@ try:
             voc_lvl,
         ]
 
-        if mode == "terminal":
-            print(tableprint.row(data, width=12))
-        elif mode == "pipe":
+        if args.pipe:
             print(*data, sep=",")
+        else:
+            print(tableprint.row(data, width=12))
 
         waveplus.disconnect()
 
-        time.sleep(sample_period)
+        time.sleep(args.sample_period)
 
 finally:
     waveplus.disconnect()

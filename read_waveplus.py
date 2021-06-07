@@ -116,10 +116,13 @@ class WavePlus:
                         break  # exit for loop
 
             if self.mac_addr is None:
-                print("ERROR: Could not find device.")
-                print("GUIDE: (1) Please verify the serial number.")
-                print("       (2) Ensure that the device is advertising.")
-                print("       (3) Retry connection.")
+                print(
+                    "ERROR: Could not find device.",
+                    "GUIDE: (1) Please verify the serial number.",
+                    "       (2) Ensure that the device is advertising.",
+                    "       (3) Retry connection.",
+                    sep="\n",
+                )
                 sys.exit(1)
 
         # Connect to device
@@ -178,8 +181,11 @@ class Sensors:
     def set(self, raw_data):
         self.sensor_version = raw_data[0]
         if self.sensor_version != 1:
-            print("ERROR: Unknown sensor version.\n")
-            print("GUIDE: Contact Airthings for support.\n")
+            print(
+                "ERROR: Unknown sensor version.",
+                "GUIDE: Contact Airthings for support.",
+                sep="\n",
+            )
             sys.exit(1)
         self.sensor_data[SENSOR_IDX_HUMIDITY] = raw_data[1] / 2.0
         self.sensor_data[SENSOR_IDX_RADON_SHORT_TERM_AVG] = self.conv2radon(

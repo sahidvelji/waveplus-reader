@@ -86,34 +86,32 @@ class WavePlus:
         self.sn = serial_number
         self.uuid = UUID(WAVEPLUS_UUID)
 
-    def connect(self):
+    def search(self):
         # Auto-discover device on first connection
+        scanner = Scanner().withDelegate(DefaultDelegate())
+        search_count = 0
+        while search_count < MAX_SEARCH_COUNT:
+            devices = scanner.scan(SCAN_TIMEOUT)
+            search_count += 1
+            for dev in devices:
+                manu_data = dev.getValueText(255)
+                sn = parse_serial_number(manu_data)
+                if sn == self.sn:
+                    return dev.addr
+
+        # Device not found after MAX_SEARCH_COUNT
+        print(
+            "ERROR: Could not find device.",
+            "GUIDE: (1) Please verify the serial number.",
+            "       (2) Ensure that the device is advertising.",
+            "       (3) Retry connection.",
+            sep="\n",
+        )
+        sys.exit(1)
+
+    def connect(self):
         if self.mac_addr is None:
-            scanner = Scanner().withDelegate(DefaultDelegate())
-            search_count = 0
-            while self.mac_addr is None and search_count < MAX_SEARCH_COUNT:
-                devices = scanner.scan(SCAN_TIMEOUT)
-                search_count += 1
-                for dev in devices:
-                    manu_data = dev.getValueText(255)
-                    sn = parse_serial_number(manu_data)
-                    if sn == self.sn:
-                        self.mac_addr = (
-                            dev.addr
-                        )  # exits the while loop on next conditional check
-                        break  # exit for loop
-
-            if self.mac_addr is None:
-                print(
-                    "ERROR: Could not find device.",
-                    "GUIDE: (1) Please verify the serial number.",
-                    "       (2) Ensure that the device is advertising.",
-                    "       (3) Retry connection.",
-                    sep="\n",
-                )
-                sys.exit(1)
-
-        # Connect to device
+            self.mac_addr = self.search()
         if self.periph is None:
             self.periph = Peripheral(self.mac_addr)
         if self.curr_val_char is None:

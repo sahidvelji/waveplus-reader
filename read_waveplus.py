@@ -214,41 +214,13 @@ try:
         sensors = waveplus.read()
 
         # extract
-        humidity = (
-            str(sensors.get_value(SENSOR_IDX_HUMIDITY))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_HUMIDITY))
-        )
-        radon_st_avg = (
-            str(sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
-        )
-        radon_lt_avg = (
-            str(sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG))
-        )
-        temperature = (
-            str(sensors.get_value(SENSOR_IDX_TEMPERATURE))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_TEMPERATURE))
-        )
-        pressure = (
-            str(sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE))
-        )
-        co2_lvl = (
-            str(sensors.get_value(SENSOR_IDX_CO2_LVL))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_CO2_LVL))
-        )
-        voc_lvl = (
-            str(sensors.get_value(SENSOR_IDX_VOC_LVL))
-            + " "
-            + str(sensors.get_unit(SENSOR_IDX_VOC_LVL))
-        )
+        humidity = f"{sensors.get_value(SENSOR_IDX_HUMIDITY)} {sensors.get_unit(SENSOR_IDX_HUMIDITY)}"
+        radon_st_avg = f"{sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG)}"
+        radon_lt_avg = f"{sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG)}"
+        temperature = f"{sensors.get_value(SENSOR_IDX_TEMPERATURE)} {sensors.get_unit(SENSOR_IDX_TEMPERATURE)}"
+        pressure = f"{sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE)} {sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE)}"
+        co2_lvl = f"{sensors.get_value(SENSOR_IDX_CO2_LVL)} {sensors.get_unit(SENSOR_IDX_CO2_LVL)}"
+        voc_lvl = f"{sensors.get_value(SENSOR_IDX_VOC_LVL)} {sensors.get_unit(SENSOR_IDX_VOC_LVL)}"
 
         # Print data
         data = [

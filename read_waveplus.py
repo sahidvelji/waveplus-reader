@@ -46,6 +46,12 @@ SENSOR_IDX_REL_ATM_PRESSURE = 4
 SENSOR_IDX_CO2_LVL = 5
 SENSOR_IDX_VOC_LVL = 6
 
+TABLEPRINT_WIDTH = 12
+WAVEPLUS_UUID = "b42e2a68-ade7-11e4-89d3-123b93f75cba"
+SCAN_TIMEOUT = 0.1
+MAX_SEARCH_COUNT = 50
+VALID_SENSOR_VERSION = 1
+
 # ====================================
 # Utility functions for WavePlus class
 # ====================================
@@ -78,15 +84,15 @@ class WavePlus:
         self.curr_val_char = None
         self.mac_addr = None
         self.sn = serial_number
-        self.uuid = UUID("b42e2a68-ade7-11e4-89d3-123b93f75cba")
+        self.uuid = UUID(WAVEPLUS_UUID)
 
     def connect(self):
         # Auto-discover device on first connection
         if self.mac_addr is None:
             scanner = Scanner().withDelegate(DefaultDelegate())
             search_count = 0
-            while self.mac_addr is None and search_count < 50:
-                devices = scanner.scan(0.1)  # 0.1 seconds scan period
+            while self.mac_addr is None and search_count < MAX_SEARCH_COUNT:
+                devices = scanner.scan(SCAN_TIMEOUT)
                 search_count += 1
                 for dev in devices:
                     manu_data = dev.getValueText(255)
@@ -152,7 +158,7 @@ class Sensors:
 
     def set(self, raw_data):
         self.sensor_version = raw_data[0]
-        if self.sensor_version != 1:
+        if self.sensor_version != VALID_SENSOR_VERSION:
             print(
                 "ERROR: Unknown sensor version.",
                 "GUIDE: Contact Airthings for support.",
@@ -231,7 +237,7 @@ def main():
         if args.pipe:
             print(*header, sep=",")
         else:
-            print(tableprint.header(header, width=12))
+            print(tableprint.header(header, width=TABLEPRINT_WIDTH))
 
         while True:
 
@@ -263,7 +269,7 @@ def main():
             if args.pipe:
                 print(*data, sep=",")
             else:
-                print(tableprint.row(data, width=12))
+                print(tableprint.row(data, width=TABLEPRINT_WIDTH))
 
             waveplus.disconnect()
 

@@ -34,35 +34,17 @@ import tableprint
 import argparse
 
 # ===============================
-# Script guards for correct usage
+# Global variables
 # ===============================
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "serial_number",
-    type=int,
-    help="the 10-digit serial number found under the magnetic backplate of your Wave Plus",
-)
-parser.add_argument(
-    "--sample-period",
-    type=int,
-    default=300,
-    help="the number of seconds between reading the current values. Default: %(default)s",
-)
-parser.add_argument(
-    "--pipe", action="store_true", help="pipe the results to a file"
-)
-args = parser.parse_args()
 
-if len(str(args.serial_number)) != 10:
-    print("ERROR: Invalid SN format.")
-    parser.print_usage()
-    sys.exit(1)
-
-if args.sample_period <= 0:
-    print("ERROR: Invalid SAMPLE-PERIOD. Must be larger than zero.")
-    parser.print_usage()
-    sys.exit(1)
-
+NUMBER_OF_SENSORS = 7
+SENSOR_IDX_HUMIDITY = 0
+SENSOR_IDX_RADON_SHORT_TERM_AVG = 1
+SENSOR_IDX_RADON_LONG_TERM_AVG = 2
+SENSOR_IDX_TEMPERATURE = 3
+SENSOR_IDX_REL_ATM_PRESSURE = 4
+SENSOR_IDX_CO2_LVL = 5
+SENSOR_IDX_VOC_LVL = 6
 
 # ====================================
 # Utility functions for WavePlus class
@@ -154,16 +136,6 @@ class WavePlus:
 # Class Sensor and sensor definitions
 # ===================================
 
-NUMBER_OF_SENSORS = 7
-SENSOR_IDX_HUMIDITY = 0
-SENSOR_IDX_RADON_SHORT_TERM_AVG = 1
-SENSOR_IDX_RADON_LONG_TERM_AVG = 2
-SENSOR_IDX_TEMPERATURE = 3
-SENSOR_IDX_REL_ATM_PRESSURE = 4
-SENSOR_IDX_CO2_LVL = 5
-SENSOR_IDX_VOC_LVL = 6
-
-
 class Sensors:
     def __init__(self):
         self.sensor_version = None
@@ -212,62 +184,94 @@ class Sensors:
         return self.sensor_units[sensor_index]
 
 
-try:
-    # ---- Initialize ----#
-    waveplus = WavePlus(args.serial_number)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "serial_number",
+        type=int,
+        help="the 10-digit serial number found under the magnetic backplate of your Wave Plus",
+    )
+    parser.add_argument(
+        "--sample-period",
+        type=int,
+        default=300,
+        help="the number of seconds between reading the current values. Default: %(default)s",
+    )
+    parser.add_argument(
+        "--pipe", action="store_true", help="pipe the results to a file"
+    )
+    args = parser.parse_args()
 
-    print(f"Device serial number: {args.serial_number}")
+    if len(str(args.serial_number)) != 10:
+        print("ERROR: Invalid SN format.")
+        parser.print_usage()
+        sys.exit(1)
 
-    header = [
-        "Humidity",
-        "Radon ST avg",
-        "Radon LT avg",
-        "Temperature",
-        "Pressure",
-        "CO2 level",
-        "VOC level",
-    ]
+    if args.sample_period <= 0:
+        print("ERROR: Invalid SAMPLE-PERIOD. Must be larger than zero.")
+        parser.print_usage()
+        sys.exit(1)
 
-    if args.pipe:
-        print(*header, sep=",")
-    else:
-        print(tableprint.header(header, width=12))
+    try:
+        # ---- Initialize ----#
+        waveplus = WavePlus(args.serial_number)
 
-    while True:
+        print(f"Device serial number: {args.serial_number}")
 
-        waveplus.connect()
-
-        # read values
-        sensors = waveplus.read()
-
-        # extract
-        humidity = f"{sensors.get_value(SENSOR_IDX_HUMIDITY)} {sensors.get_unit(SENSOR_IDX_HUMIDITY)}"
-        radon_st_avg = f"{sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG)}"
-        radon_lt_avg = f"{sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG)}"
-        temperature = f"{sensors.get_value(SENSOR_IDX_TEMPERATURE)} {sensors.get_unit(SENSOR_IDX_TEMPERATURE)}"
-        pressure = f"{sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE)} {sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE)}"
-        co2_lvl = f"{sensors.get_value(SENSOR_IDX_CO2_LVL)} {sensors.get_unit(SENSOR_IDX_CO2_LVL)}"
-        voc_lvl = f"{sensors.get_value(SENSOR_IDX_VOC_LVL)} {sensors.get_unit(SENSOR_IDX_VOC_LVL)}"
-
-        # Print data
-        data = [
-            humidity,
-            radon_st_avg,
-            radon_lt_avg,
-            temperature,
-            pressure,
-            co2_lvl,
-            voc_lvl,
+        header = [
+            "Humidity",
+            "Radon ST avg",
+            "Radon LT avg",
+            "Temperature",
+            "Pressure",
+            "CO2 level",
+            "VOC level",
         ]
 
         if args.pipe:
-            print(*data, sep=",")
+            print(*header, sep=",")
         else:
-            print(tableprint.row(data, width=12))
+            print(tableprint.header(header, width=12))
 
+        while True:
+
+            waveplus.connect()
+
+            # read values
+            sensors = waveplus.read()
+
+            # extract
+            humidity = f"{sensors.get_value(SENSOR_IDX_HUMIDITY)} {sensors.get_unit(SENSOR_IDX_HUMIDITY)}"
+            radon_st_avg = f"{sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG)}"
+            radon_lt_avg = f"{sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG)}"
+            temperature = f"{sensors.get_value(SENSOR_IDX_TEMPERATURE)} {sensors.get_unit(SENSOR_IDX_TEMPERATURE)}"
+            pressure = f"{sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE)} {sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE)}"
+            co2_lvl = f"{sensors.get_value(SENSOR_IDX_CO2_LVL)} {sensors.get_unit(SENSOR_IDX_CO2_LVL)}"
+            voc_lvl = f"{sensors.get_value(SENSOR_IDX_VOC_LVL)} {sensors.get_unit(SENSOR_IDX_VOC_LVL)}"
+
+            # Print data
+            data = [
+                humidity,
+                radon_st_avg,
+                radon_lt_avg,
+                temperature,
+                pressure,
+                co2_lvl,
+                voc_lvl,
+            ]
+
+            if args.pipe:
+                print(*data, sep=",")
+            else:
+                print(tableprint.row(data, width=12))
+
+            waveplus.disconnect()
+
+            time.sleep(args.sample_period)
+
+    finally:
         waveplus.disconnect()
 
-        time.sleep(args.sample_period)
 
-finally:
-    waveplus.disconnect()
+if __name__ == "__main__":
+    main()

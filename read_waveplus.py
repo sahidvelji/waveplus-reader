@@ -37,9 +37,20 @@ import argparse
 # Script guards for correct usage
 # ===============================
 parser = argparse.ArgumentParser()
-parser.add_argument("serial_number", type=int, help="the 10-digit serial number found under the magnetic backplate of your Wave Plus")
-parser.add_argument("--sample-period", type=int, default=300, help="the number of seconds between reading the current values. Default: %(default)s")
-parser.add_argument("--pipe", action="store_true", help="pipe the results to a file")
+parser.add_argument(
+    "serial_number",
+    type=int,
+    help="the 10-digit serial number found under the magnetic backplate of your Wave Plus",
+)
+parser.add_argument(
+    "--sample-period",
+    type=int,
+    default=300,
+    help="the number of seconds between reading the current values. Default: %(default)s",
+)
+parser.add_argument(
+    "--pipe", action="store_true", help="pipe the results to a file"
+)
 args = parser.parse_args()
 
 if len(str(args.serial_number)) != 10:
@@ -115,7 +126,9 @@ class WavePlus:
         if self.periph is None:
             self.periph = Peripheral(self.mac_addr)
         if self.curr_val_char is None:
-            self.curr_val_char = self.periph.getCharacteristics(uuid=self.uuid)[0]
+            self.curr_val_char = self.periph.getCharacteristics(
+                uuid=self.uuid
+            )[0]
 
     def read(self):
         if self.curr_val_char is None:
@@ -152,7 +165,15 @@ class Sensors:
     def __init__(self):
         self.sensor_version = None
         self.sensor_data = [None] * NUMBER_OF_SENSORS
-        self.sensor_units = ["%rH", "Bq/m3", "Bq/m3", "degC", "hPa", "ppm", "ppb"]
+        self.sensor_units = [
+            "%rH",
+            "Bq/m3",
+            "Bq/m3",
+            "degC",
+            "hPa",
+            "ppm",
+            "ppb",
+        ]
 
     def set(self, raw_data):
         self.sensor_version = raw_data[0]

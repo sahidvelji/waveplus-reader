@@ -79,10 +79,10 @@ def parse_serial_number(manu_data_hex_str):
 
 
 class WavePlus:
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, mac_addr):
         self.periph = None
         self.curr_val_char = None
-        self.mac_addr = None
+        self.mac_addr = mac_addr
         self.sn = serial_number
         self.uuid = UUID(WAVEPLUS_UUID)
 
@@ -204,6 +204,10 @@ def main():
     parser.add_argument(
         "--pipe", action="store_true", help="pipe the results to a file"
     )
+    parser.add_argument(
+        "--mac-addr",
+        help="the MAC address of the Wave Plus device",
+    )
     args = parser.parse_args()
 
     if len(str(args.serial_number)) != 10:
@@ -218,7 +222,7 @@ def main():
 
     try:
         # ---- Initialize ----#
-        waveplus = WavePlus(args.serial_number)
+        waveplus = WavePlus(args.serial_number, args.mac_addr)
 
         print(f"Device serial number: {args.serial_number}")
 

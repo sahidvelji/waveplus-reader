@@ -165,12 +165,8 @@ class Sensors:
             )
             sys.exit(1)
         self.sensor_data["humidity"] = raw_data[1] / 2.0
-        self.sensor_data["radon_sta"] = self.conv2radon(
-            raw_data[4]
-        )
-        self.sensor_data["radon_lta"] = self.conv2radon(
-            raw_data[5]
-        )
+        self.sensor_data["radon_sta"] = self.conv2radon(raw_data[4])
+        self.sensor_data["radon_lta"] = self.conv2radon(raw_data[5])
         self.sensor_data["temperature"] = raw_data[6] / 100.0
         self.sensor_data["pressure"] = raw_data[7] / 50.0
         self.sensor_data["co2"] = raw_data[8] * 1.0

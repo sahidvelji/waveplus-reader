@@ -140,19 +140,20 @@ class WavePlus:
 # Class Sensor and sensor definitions
 # ===================================
 
+
 class Sensors:
     def __init__(self):
         self.sensor_version = None
-        self.sensor_data = [None] * NUMBER_OF_SENSORS
-        self.sensor_units = [
-            "%rH",
-            "Bq/m3",
-            "Bq/m3",
-            "degC",
-            "hPa",
-            "ppm",
-            "ppb",
-        ]
+        self.sensor_data = {}
+        self.sensor_units = {
+            "humidity": "%rH",
+            "radon_sta": "Bq/m3",
+            "radon_lta": "Bq/m3",
+            "temperature": "degC",
+            "pressure": "hPa",
+            "co2": "ppm",
+            "voc": "ppb",
+        }
 
     def set(self, raw_data):
         self.sensor_version = raw_data[0]
@@ -163,17 +164,17 @@ class Sensors:
                 sep="\n",
             )
             sys.exit(1)
-        self.sensor_data[SENSOR_IDX_HUMIDITY] = raw_data[1] / 2.0
-        self.sensor_data[SENSOR_IDX_RADON_SHORT_TERM_AVG] = self.conv2radon(
+        self.sensor_data["humidity"] = raw_data[1] / 2.0
+        self.sensor_data["radon_sta"] = self.conv2radon(
             raw_data[4]
         )
-        self.sensor_data[SENSOR_IDX_RADON_LONG_TERM_AVG] = self.conv2radon(
+        self.sensor_data["radon_lta"] = self.conv2radon(
             raw_data[5]
         )
-        self.sensor_data[SENSOR_IDX_TEMPERATURE] = raw_data[6] / 100.0
-        self.sensor_data[SENSOR_IDX_REL_ATM_PRESSURE] = raw_data[7] / 50.0
-        self.sensor_data[SENSOR_IDX_CO2_LVL] = raw_data[8] * 1.0
-        self.sensor_data[SENSOR_IDX_VOC_LVL] = raw_data[9] * 1.0
+        self.sensor_data["temperature"] = raw_data[6] / 100.0
+        self.sensor_data["pressure"] = raw_data[7] / 50.0
+        self.sensor_data["co2"] = raw_data[8] * 1.0
+        self.sensor_data["voc"] = raw_data[9] * 1.0
 
     def conv2radon(self, radon_raw):
         radon = "N/A"  # Either invalid measurement, or not available
@@ -181,11 +182,11 @@ class Sensors:
             radon = radon_raw
         return radon
 
-    def get_value(self, sensor_index):
-        return self.sensor_data[sensor_index]
+    def get_value(self, variable):
+        return self.sensor_data[variable]
 
-    def get_unit(self, sensor_index):
-        return self.sensor_units[sensor_index]
+    def get_unit(self, variable):
+        return self.sensor_units[variable]
 
 
 def main():
@@ -249,13 +250,13 @@ def main():
             sensors = waveplus.read()
 
             # extract
-            humidity = f"{sensors.get_value(SENSOR_IDX_HUMIDITY)} {sensors.get_unit(SENSOR_IDX_HUMIDITY)}"
-            radon_st_avg = f"{sensors.get_value(SENSOR_IDX_RADON_SHORT_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_SHORT_TERM_AVG)}"
-            radon_lt_avg = f"{sensors.get_value(SENSOR_IDX_RADON_LONG_TERM_AVG)} {sensors.get_unit(SENSOR_IDX_RADON_LONG_TERM_AVG)}"
-            temperature = f"{sensors.get_value(SENSOR_IDX_TEMPERATURE)} {sensors.get_unit(SENSOR_IDX_TEMPERATURE)}"
-            pressure = f"{sensors.get_value(SENSOR_IDX_REL_ATM_PRESSURE)} {sensors.get_unit(SENSOR_IDX_REL_ATM_PRESSURE)}"
-            co2_lvl = f"{sensors.get_value(SENSOR_IDX_CO2_LVL)} {sensors.get_unit(SENSOR_IDX_CO2_LVL)}"
-            voc_lvl = f"{sensors.get_value(SENSOR_IDX_VOC_LVL)} {sensors.get_unit(SENSOR_IDX_VOC_LVL)}"
+            humidity = f"{sensors.get_value('humidity')} {sensors.get_unit('humidity')}"
+            radon_st_avg = f"{sensors.get_value('radon_sta')} {sensors.get_unit('radon_sta')}"
+            radon_lt_avg = f"{sensors.get_value('radon_lta')} {sensors.get_unit('radon_lta')}"
+            temperature = f"{sensors.get_value('temperature')} {sensors.get_unit('temperature')}"
+            pressure = f"{sensors.get_value('pressure')} {sensors.get_unit('pressure')}"
+            co2_lvl = f"{sensors.get_value('co2')} {sensors.get_unit('co2')}"
+            voc_lvl = f"{sensors.get_value('voc')} {sensors.get_unit('voc')}"
 
             # Print data
             data = [

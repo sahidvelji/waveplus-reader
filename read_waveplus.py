@@ -228,7 +228,6 @@ def main():
         sys.exit(1)
 
     try:
-        # ---- Initialize ----#
         waveplus = WavePlus(args.serial_number, args.mac_addr)
 
         print(f"Device serial number: {args.serial_number}")
@@ -249,10 +248,7 @@ def main():
             print(tableprint.header(header, width=TABLEPRINT_WIDTH))
 
         while True:
-
             waveplus.connect()
-
-            # read values
             sensors = waveplus.read()
 
             data = [

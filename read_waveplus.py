@@ -46,6 +46,16 @@ SENSOR_IDX_REL_ATM_PRESSURE = 4
 SENSOR_IDX_CO2_LVL = 5
 SENSOR_IDX_VOC_LVL = 6
 
+VARIABLES = [
+    "humidity",
+    "radon_sta",
+    "radon_lta",
+    "temperature",
+    "pressure",
+    "co2",
+    "voc",
+]
+
 TABLEPRINT_WIDTH = 12
 WAVEPLUS_UUID = "b42e2a68-ade7-11e4-89d3-123b93f75cba"
 SCAN_TIMEOUT = 0.1
@@ -245,24 +255,9 @@ def main():
             # read values
             sensors = waveplus.read()
 
-            # extract
-            humidity = f"{sensors.get_value('humidity')} {sensors.get_unit('humidity')}"
-            radon_st_avg = f"{sensors.get_value('radon_sta')} {sensors.get_unit('radon_sta')}"
-            radon_lt_avg = f"{sensors.get_value('radon_lta')} {sensors.get_unit('radon_lta')}"
-            temperature = f"{sensors.get_value('temperature')} {sensors.get_unit('temperature')}"
-            pressure = f"{sensors.get_value('pressure')} {sensors.get_unit('pressure')}"
-            co2_lvl = f"{sensors.get_value('co2')} {sensors.get_unit('co2')}"
-            voc_lvl = f"{sensors.get_value('voc')} {sensors.get_unit('voc')}"
-
-            # Print data
             data = [
-                humidity,
-                radon_st_avg,
-                radon_lt_avg,
-                temperature,
-                pressure,
-                co2_lvl,
-                voc_lvl,
+                f"{sensors.get_value(var)} {sensors.get_unit(var)}"
+                for var in VARIABLES
             ]
 
             if args.pipe:

@@ -74,9 +74,17 @@ class Humidity(float):
     def __init__(self, value):
         self.value = value
         self.unit = "%rH"
+        self.status = self.status()
 
     def __str__(self):
         return f"{self.value} {self.unit}"
+
+    def status(self):
+        if self < 25 or self >= 70:
+            return "red"
+        if 60 <= self < 70 or 25 <= self < 30:
+            return "yellow"
+        return "green"
 
 
 class Radon(int):
@@ -86,9 +94,17 @@ class Radon(int):
     def __init__(self, value):
         self.value = value
         self.unit = "Bq/m3"
+        self.status = self.status()
 
     def __str__(self):
         return f"{self.value} {self.unit}"
+
+    def status(self):
+        if self >= 150:
+            return "red"
+        if self >= 100:
+            return "yellow"
+        return "green"
 
 
 class Temperature(float):
@@ -98,9 +114,17 @@ class Temperature(float):
     def __init__(self, value):
         self.value = value
         self.unit = "degC"
+        self.status = self.status()
 
     def __str__(self):
         return f"{self.value} {self.unit}"
+
+    def status(self):
+        if self >= 25:
+            return "red"
+        if self < 18:
+            return "blue"
+        return "green"
 
 
 class Pressure(int):
@@ -110,6 +134,7 @@ class Pressure(int):
     def __init__(self, value):
         self.value = value
         self.unit = "hPa"
+        self.status = "N/A"
 
     def __str__(self):
         return f"{self.value} {self.unit}"
@@ -122,9 +147,17 @@ class CO2(int):
     def __init__(self, value):
         self.value = value
         self.unit = "ppm"
+        self.status = self.status()
 
     def __str__(self):
         return f"{self.value} {self.unit}"
+
+    def status(self):
+        if self >= 1000:
+            return "red"
+        if self >= 800:
+            return "yellow"
+        return "green"
 
 
 class VOC(int):
@@ -134,9 +167,17 @@ class VOC(int):
     def __init__(self, value):
         self.value = value
         self.unit = "ppb"
+        self.status = self.status()
 
     def __str__(self):
         return f"{self.value} {self.unit}"
+
+    def status(self):
+        if self >= 2000:
+            return "red"
+        if self >= 250:
+            return "yellow"
+        return "green"
 
 
 # ====================================

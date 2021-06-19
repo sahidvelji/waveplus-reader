@@ -355,12 +355,12 @@ def main():
             waveplus.connect()
             sensors = waveplus.read()
 
-            data = [sensors.get_variable(var) for var in VARIABLES]
+            data = {var: sensors.get_variable(var) for var in VARIABLES}
 
             if args.pipe:
-                print(*data, sep=",")
+                print(*data.values(), sep=",")
             else:
-                print(tableprint.row(list(map(str, data)), width=TABLEPRINT_WIDTH))
+                print(tableprint.row(list(map(str, data.values())), width=TABLEPRINT_WIDTH))
 
             waveplus.disconnect()
 

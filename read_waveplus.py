@@ -63,6 +63,83 @@ MAX_SEARCH_COUNT = 50
 VALID_SENSOR_VERSION = 1
 
 # ====================================
+# Variable classes
+# ====================================
+
+
+class Humidity(float):
+    def __new__(cls, value):
+        return super(Humidity, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "%rH"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+class Radon(int):
+    def __new__(cls, value):
+        return super(Radon, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "Bq/m3"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+class Temperature(float):
+    def __new__(cls, value):
+        return super(Temperature, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "degC"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+class Pressure(int):
+    def __new__(cls, value):
+        return super(Pressure, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "hPa"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+class CO2(int):
+    def __new__(cls, value):
+        return super(CO2, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "ppm"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+class VOC(int):
+    def __new__(cls, value):
+        return super(VOC, cls).__new__(cls, value)
+
+    def __init__(self, value):
+        self.value = value
+        self.unit = "ppb"
+
+    def __str__(self):
+        return f"{self.value} {self.unit}"
+
+
+# ====================================
 # Utility functions for WavePlus class
 # ====================================
 
@@ -155,15 +232,6 @@ class Sensors:
     def __init__(self):
         self.sensor_version = None
         self.sensor_data = {}
-        self.sensor_units = {
-            "humidity": "%rH",
-            "radon_sta": "Bq/m3",
-            "radon_lta": "Bq/m3",
-            "temperature": "degC",
-            "pressure": "hPa",
-            "co2": "ppm",
-            "voc": "ppb",
-        }
 
     def set(self, raw_data):
         self.sensor_version = raw_data[0]
@@ -174,13 +242,13 @@ class Sensors:
                 sep="\n",
             )
             sys.exit(1)
-        self.sensor_data["humidity"] = raw_data[1] / 2.0
-        self.sensor_data["radon_sta"] = self.conv2radon(raw_data[4])
-        self.sensor_data["radon_lta"] = self.conv2radon(raw_data[5])
-        self.sensor_data["temperature"] = raw_data[6] / 100.0
-        self.sensor_data["pressure"] = raw_data[7] / 50.0
-        self.sensor_data["co2"] = raw_data[8] * 1.0
-        self.sensor_data["voc"] = raw_data[9] * 1.0
+        self.sensor_data["humidity"] = Humidity(raw_data[1] / 2.0)
+        self.sensor_data["radon_sta"] = Radon(self.conv2radon(raw_data[4]))
+        self.sensor_data["radon_lta"] = Radon(self.conv2radon(raw_data[5]))
+        self.sensor_data["temperature"] = Temperature(raw_data[6] / 100.0)
+        self.sensor_data["pressure"] = Pressure(raw_data[7] / 50.0)
+        self.sensor_data["co2"] = CO2(raw_data[8] * 1.0)
+        self.sensor_data["voc"] = VOC(raw_data[9] * 1.0)
 
     def conv2radon(self, radon_raw):
         radon = "N/A"  # Either invalid measurement, or not available
@@ -188,11 +256,8 @@ class Sensors:
             radon = radon_raw
         return radon
 
-    def get_value(self, variable):
+    def get_variable(self, variable):
         return self.sensor_data[variable]
-
-    def get_unit(self, variable):
-        return self.sensor_units[variable]
 
 
 def main():
@@ -251,10 +316,7 @@ def main():
             waveplus.connect()
             sensors = waveplus.read()
 
-            data = [
-                f"{sensors.get_value(var)} {sensors.get_unit(var)}"
-                for var in VARIABLES
-            ]
+            data = [f"{sensors.get_variable(var)}" for var in VARIABLES]
 
             if args.pipe:
                 print(*data, sep=",")

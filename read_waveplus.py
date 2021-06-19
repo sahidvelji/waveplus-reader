@@ -336,8 +336,6 @@ def main():
     try:
         waveplus = WavePlus(args.serial_number, args.mac_addr)
 
-        print(f"Device serial number: {args.serial_number}")
-
         header = [
             "Humidity",
             "Radon ST avg",

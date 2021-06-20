@@ -301,6 +301,34 @@ class Sensors:
         return self.sensor_data[variable]
 
 
+def statusbar_print(data):
+    overall_status = "green"
+    status = [
+        data[var].status
+        for var in data
+        if var in {"humidity", "co2", "voc", "radon"}
+    ]
+    print_vars = []
+    if "red" in status:
+        overall_status = "red"
+    elif "yellow" in status:
+        overall_status = "yellow"
+    for var in data:
+        if data[var].status in {"blue", "yellow", "red"}:
+            print_vars.append(data[var])
+    print(overall_status_emoji(overall_status), end="")
+    print(*print_vars, sep=" ")
+
+
+def overall_status_emoji(status):
+    if status == "green":
+        return "🟢"
+    if status == "yellow":
+        return "🟡"
+    if status == "red":
+        return "🔴"
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -316,6 +344,11 @@ def main():
     )
     parser.add_argument(
         "--pipe", action="store_true", help="pipe the results to a file"
+    )
+    parser.add_argument(
+        "--statusbar",
+        action="store_true",
+        help="print air quality status suitable for statusbar",
     )
     parser.add_argument(
         "--mac-addr",
@@ -348,7 +381,7 @@ def main():
 
         if args.pipe:
             print(*header, sep=",")
-        else:
+        elif not args.statusbar:
             print(tableprint.header(header, width=TABLEPRINT_WIDTH))
 
         while True:
@@ -356,11 +389,18 @@ def main():
             sensors = waveplus.read()
 
             data = {var: sensors.get_variable(var) for var in VARIABLES}
+            if args.statusbar:
+                statusbar_print(data)
+                sys.exit(0)
 
             if args.pipe:
                 print(*data.values(), sep=",")
             else:
-                print(tableprint.row(list(map(str, data.values())), width=TABLEPRINT_WIDTH))
+                print(
+                    tableprint.row(
+                        list(map(str, data.values())), width=TABLEPRINT_WIDTH
+                    )
+                )
 
             waveplus.disconnect()
 

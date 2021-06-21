@@ -77,7 +77,7 @@ class Humidity(float):
         self.status = self.status()
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
     def status(self):
         if self < 25 or self >= 70:
@@ -97,7 +97,7 @@ class Radon(int):
         self.status = self.status()
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
     def status(self):
         if self >= 150:
@@ -117,7 +117,7 @@ class Temperature(float):
         self.status = self.status()
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
     def status(self):
         if self >= 25:
@@ -137,7 +137,7 @@ class Pressure(int):
         self.status = "N/A"
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
 
 class CO2(int):
@@ -150,7 +150,7 @@ class CO2(int):
         self.status = self.status()
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
     def status(self):
         if self >= 1000:
@@ -170,7 +170,7 @@ class VOC(int):
         self.status = self.status()
 
     def __str__(self):
-        return f"{self.value} {self.unit}"
+        return f"{super().__str__()} {self.unit}"
 
     def status(self):
         if self >= 2000:
